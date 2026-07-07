@@ -1,0 +1,42 @@
+name: Test
+
+on:
+  push:
+  workflow_dispatch:
+  schedule:
+    - cron: '11 11 * * 1'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    env:
+      latest: 26
+
+    strategy:
+      fail-fast: false
+      matrix:
+        node-version: [20, 22, 24, 26]
+
+    name: Node.js v${{ matrix.node-version }}
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: pnpm/action-setup@v6
+        with:
+          version: 10
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - run: pnpm install --frozen-lockfile
+
+      - run: pnpm coverage
+
+      - uses: codecov/codecov-action@v6
+        with:
+          files: ./coverage/lcov.info
+          fail_ci_if_error: false
+        if: ${{ matrix.node-version == env.latest }}

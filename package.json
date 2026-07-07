@@ -1,0 +1,43 @@
+{
+  "name": "@sunaoka/email-normalizer",
+  "version": "0.1.0",
+  "description": "Normalize email addresses using mailbox provider specific rules.",
+  "type": "module",
+  "license": "BSD-3-Clause",
+  "author": "sunaoka <sunaoka@pocari.org>",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "ci": "run-p ci:*",
+    "ci:lint": "eslint",
+    "ci:format": "prettier --write src tests eslint.config.ts vitest.config.ts",
+    "ci:typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run",
+    "coverage": "vitest run --coverage"
+  },
+  "dependencies": {
+    "tldts": "^7.0.19"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.14",
+    "@vitest/coverage-v8": "3.2.6",
+    "eslint": "^9.39.1",
+    "jiti": "^2.6.1",
+    "npm-run-all2": "^8.0.4",
+    "prettier": "^3.6.2",
+    "typescript": "^5.8.3",
+    "typescript-eslint": "^8.46.2",
+    "vitest": "^3.2.4"
+  }
+}
