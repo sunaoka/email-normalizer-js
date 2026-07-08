@@ -2,7 +2,7 @@
 
 `@sunaoka/email-normalizer` is a Node.js port of [`gmr/email-normalize`](https://github.com/gmr/email-normalize).
 
-It normalizes email addresses by applying mailbox provider-specific rules such as plus addressing, Gmail dot handling, and Fastmail subdomain aliases. It can detect providers from MX records through PHP's native DNS functions, or use a static domain map when DNS lookups should be skipped.
+It normalizes email addresses by applying mailbox provider-specific rules such as plus addressing, Gmail dot handling, and Fastmail subdomain aliases. It can detect providers from MX records through Node.js DNS APIs, or use a static domain map when DNS lookups should be skipped.
 
 ## Requirements
 
@@ -11,9 +11,18 @@ It normalizes email addresses by applying mailbox provider-specific rules such a
 
 ## Installation
 
+This package is not published to npm yet. Install it from a Git tag:
+
 ```bash
-# #0.1.0 is the version
-pnpm add -D git+https://github.com/sunaoka/email-normalizer-js#0.1.0
+pnpm add git+https://github.com/sunaoka/email-normalizer-js#0.1.0
+```
+
+```bash
+npm install git+https://github.com/sunaoka/email-normalizer-js#0.1.0
+```
+
+```bash
+yarn add git+https://github.com/sunaoka/email-normalizer-js#0.1.0
 ```
 
 ## Usage
@@ -60,24 +69,24 @@ const result = await normalizer.normalize("name+tag@example.com");
 ## API
 
 ```ts
-export type MxRecord = {
+export interface MxRecord {
   priority: number;
   host: string;
-};
+}
 
-export type Result = Readonly<{
-  address: string;
-  normalizedAddress: string;
-  mxRecords: readonly MxRecord[];
-  mailboxProvider: string | null;
-}>;
+export interface Result {
+  readonly address: string;
+  readonly normalizedAddress: string;
+  readonly mxRecords: readonly MxRecord[];
+  readonly mailboxProvider: string | null;
+}
 
-export type NormalizerOptions = {
+export interface NormalizerOptions {
   cacheLimit?: number;
   cacheFailures?: boolean;
   failureTtl?: number;
   skipDns?: boolean;
-};
+}
 
 export function normalize(emailAddress: string, options?: { skipDns?: boolean }): Promise<Result>;
 
@@ -113,8 +122,8 @@ export class Normalizer {
 
 ```bash
 pnpm install
-pnpm test
-pnpm build
+pnpm run ci
+pnpm run test
 ```
 
 ## License
