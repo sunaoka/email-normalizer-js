@@ -14,15 +14,15 @@ It normalizes email addresses by applying mailbox provider-specific rules such a
 This package is not published to npm yet. Install it from a Git tag:
 
 ```bash
-pnpm add git+https://github.com/sunaoka/email-normalizer-js#0.1.0
+pnpm add git+https://github.com/sunaoka/email-normalizer-js#0.2.0
 ```
 
 ```bash
-npm install git+https://github.com/sunaoka/email-normalizer-js#0.1.0
+npm install git+https://github.com/sunaoka/email-normalizer-js#0.2.0
 ```
 
 ```bash
-yarn add git+https://github.com/sunaoka/email-normalizer-js#0.1.0
+yarn add git+https://github.com/sunaoka/email-normalizer-js#0.2.0
 ```
 
 ## Usage
