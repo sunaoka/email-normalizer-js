@@ -54,6 +54,16 @@ async function assertSkipDnsProvider(
 }
 
 describe("normalize", () => {
+  test("throws when the email address is empty", async () => {
+    await expect(normalize("")).rejects.toThrow(TypeError);
+    await expect(normalize("   ")).rejects.toThrow(
+      "emailAddress must not be empty",
+    );
+    await expect(new Normalizer().normalize("")).rejects.toThrow(
+      "emailAddress must not be empty",
+    );
+  });
+
   test("returns the original address when MX lookup fails", async () => {
     const address = "user@invalid.invalid";
     const result = await new StubNormalizer(null).normalize(address);

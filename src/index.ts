@@ -153,6 +153,10 @@ export class Normalizer {
 
   public async normalize(emailAddress: string): Promise<Result> {
     const address = this.parseAddress(emailAddress);
+    if (address === "") {
+      throw new TypeError("emailAddress must not be empty");
+    }
+
     const atIndex = address.indexOf("@");
 
     if (atIndex < 0) {
