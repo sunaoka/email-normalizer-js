@@ -117,6 +117,8 @@ export class Normalizer {
 - Google Workspace custom domains keep periods but strip plus addressing.
 - Fastmail can treat the left-most subdomain as the local part.
 - Yahoo is detected, but no local-part normalization is applied.
+- Some provider alias domains fold to a canonical domain. Google's `googlemail.com` folds to `gmail.com`, and Apple's `me.com` and `mac.com` fold to `icloud.com`.
+- Distinct consumer domains such as Microsoft's `outlook.com` and `hotmail.com`, or Yahoo's `yahoo.com` and `aol.com`, are not folded.
 
 ## Development
 

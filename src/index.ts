@@ -32,6 +32,7 @@ type Provider = Readonly<{
   flags: number;
   mxDomains: readonly string[];
   stripPeriodDomains?: readonly string[];
+  canonicalDomains?: ReadonlyMap<string, string>;
 }>;
 
 const PROVIDERS = [
@@ -39,6 +40,10 @@ const PROVIDERS = [
     name: "Apple",
     flags: Rules.PLUS_ADDRESSING,
     mxDomains: ["icloud.com"],
+    canonicalDomains: new Map([
+      ["me.com", "icloud.com"],
+      ["mac.com", "icloud.com"],
+    ]),
   },
   {
     name: "Fastmail",
@@ -50,6 +55,7 @@ const PROVIDERS = [
     flags: Rules.PLUS_ADDRESSING | Rules.STRIP_PERIODS,
     mxDomains: ["google.com", "googlemail.com"],
     stripPeriodDomains: ["gmail.com", "googlemail.com"],
+    canonicalDomains: new Map([["googlemail.com", "gmail.com"]]),
   },
   {
     name: "Microsoft",
@@ -194,6 +200,8 @@ export class Normalizer {
       if ((provider.flags & Rules.PLUS_ADDRESSING) !== 0) {
         localPart = localPart.split("+", 1)[0] ?? "";
       }
+
+      domainPart = provider.canonicalDomains?.get(domainPart) ?? domainPart;
     }
 
     return {

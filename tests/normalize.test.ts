@@ -146,10 +146,19 @@ describe("normalize", () => {
     );
   });
 
-  test("Google consumer Googlemail strips periods", async () => {
+  test("Google consumer Googlemail strips periods and folds to Gmail", async () => {
     await assertNormalized(
       "u.s.e.r+tag@googlemail.com",
-      "user@googlemail.com",
+      "user@gmail.com",
+      [{ priority: 1, host: "aspmx.l.google.com" }],
+      "Google",
+    );
+  });
+
+  test("Google canonical Gmail is unchanged", async () => {
+    await assertNormalized(
+      "user+tag@gmail.com",
+      "user@gmail.com",
       [{ priority: 1, host: "aspmx.l.google.com" }],
       "Google",
     );
@@ -170,6 +179,51 @@ describe("normalize", () => {
       "user@example.com",
       [{ priority: 10, host: "domain-com.mail.protection.outlook.com" }],
       "Microsoft",
+    );
+  });
+
+  test("Microsoft Hotmail is not folded", async () => {
+    await assertNormalized(
+      "user+test@hotmail.com",
+      "user@hotmail.com",
+      [{ priority: 10, host: "hotmail-com.olc.protection.outlook.com" }],
+      "Microsoft",
+    );
+  });
+
+  test("Apple me.com folds to iCloud", async () => {
+    await assertNormalized(
+      "user+test@me.com",
+      "user@icloud.com",
+      [{ priority: 10, host: "mx01.mail.icloud.com" }],
+      "Apple",
+    );
+  });
+
+  test("Apple mac.com folds to iCloud", async () => {
+    await assertNormalized(
+      "user+test@mac.com",
+      "user@icloud.com",
+      [{ priority: 10, host: "mx01.mail.icloud.com" }],
+      "Apple",
+    );
+  });
+
+  test("Apple iCloud canonical domain is unchanged", async () => {
+    await assertNormalized(
+      "user+test@icloud.com",
+      "user@icloud.com",
+      [{ priority: 10, host: "mx01.mail.icloud.com" }],
+      "Apple",
+    );
+  });
+
+  test("Apple domain folding preserves periods", async () => {
+    await assertNormalized(
+      "first.last+tag@me.com",
+      "first.last@icloud.com",
+      [{ priority: 10, host: "mx01.mail.icloud.com" }],
+      "Apple",
     );
   });
 
@@ -250,6 +304,34 @@ describe("normalize", () => {
 
     expect(result.normalizedAddress).toBe("user@gmail.com");
     expect(result.mailboxProvider).toBe("Google");
+  });
+
+  test("skipDns folds googlemail to Gmail", async () => {
+    const result = await normalize("u.s.e.r+tag@googlemail.com", {
+      skipDns: true,
+    });
+
+    expect(result.normalizedAddress).toBe("user@gmail.com");
+    expect(result.mailboxProvider).toBe("Google");
+  });
+
+  test("skipDns folds Apple alias domains to iCloud", async () => {
+    const icloud = await normalize("sample+a@icloud.com", { skipDns: true });
+    const me = await normalize("sample+b@me.com", { skipDns: true });
+    const mac = await normalize("sample+c@mac.com", { skipDns: true });
+
+    expect(icloud.normalizedAddress).toBe("sample@icloud.com");
+    expect(me.normalizedAddress).toBe(icloud.normalizedAddress);
+    expect(mac.normalizedAddress).toBe(icloud.normalizedAddress);
+  });
+
+  test("skipDns does not fold distinct Microsoft domains", async () => {
+    const hotmail = await normalize("sample+a@hotmail.com", { skipDns: true });
+    const outlook = await normalize("sample+b@outlook.com", { skipDns: true });
+
+    expect(hotmail.normalizedAddress).toBe("sample@hotmail.com");
+    expect(outlook.normalizedAddress).toBe("sample@outlook.com");
+    expect(hotmail.normalizedAddress).not.toBe(outlook.normalizedAddress);
   });
 
   test("skipDns unknown domain", async () => {
