@@ -11,6 +11,10 @@ const PROVIDERS = [
         name: "Apple",
         flags: Rules.PLUS_ADDRESSING,
         mxDomains: ["icloud.com"],
+        canonicalDomains: new Map([
+            ["me.com", "icloud.com"],
+            ["mac.com", "icloud.com"],
+        ]),
     },
     {
         name: "Fastmail",
@@ -22,6 +26,7 @@ const PROVIDERS = [
         flags: Rules.PLUS_ADDRESSING | Rules.STRIP_PERIODS,
         mxDomains: ["google.com", "googlemail.com"],
         stripPeriodDomains: ["gmail.com", "googlemail.com"],
+        canonicalDomains: new Map([["googlemail.com", "gmail.com"]]),
     },
     {
         name: "Microsoft",
@@ -103,6 +108,9 @@ export class Normalizer {
     }
     async normalize(emailAddress) {
         const address = this.parseAddress(emailAddress);
+        if (address === "") {
+            throw new TypeError("emailAddress must not be empty");
+        }
         const atIndex = address.indexOf("@");
         if (atIndex < 0) {
             return {
@@ -129,6 +137,7 @@ export class Normalizer {
             if ((provider.flags & Rules.PLUS_ADDRESSING) !== 0) {
                 localPart = localPart.split("+", 1)[0] ?? "";
             }
+            domainPart = provider.canonicalDomains?.get(domainPart) ?? domainPart;
         }
         return {
             address: emailAddress,
